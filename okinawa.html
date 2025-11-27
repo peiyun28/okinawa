@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6天5夜 沖繩海島之旅 - 行程與記帳 (離線模式)</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Icon -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        /* 設定字體為 Inter (現代、清晰)，並加入 fallback 中文字體 */
+        body {
+            font-family: 'Inter', 'Noto Sans TC', 'Microsoft YaHei', sans-serif;
+            background-color: #f0f9ff; /* 輕盈的淺藍色背景 */
+            padding-bottom: 7rem; /* 為了底部的浮動導航欄留出空間 */
+        }
+        /* 藍綠色系主題顏色 */
+        .color-primary { background-color: #06b6d4; } /* Cyan 500 */
+        .color-secondary { color: #0e7490; } /* Cyan 700 */
+        .color-accent { background-color: #2dd4bf; } /* Teal 300 */
+
+        /* 定義卡片滑入動畫 */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .itinerary-card.is-visible {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        /* Modal Backdrop */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            z-index: 50;
+        }
+
+        /* 專門為機場機票設計的樣式 */
+        .ticket-design {
+            background: linear-gradient(to right, #0ea5e9, #06b6d4); /* 藍色到青色漸變 */
+            position: relative;
+            overflow: hidden;
+        }
+        .ticket-design::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: skewX(-15deg);
+        }
+        .ticket-design .rip-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            border-top: 2px dashed #e0f7fa;
+        }
+        .ticket-design .corner-cut {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #f0f9ff; /* 必須與 body 背景色相同 */
+        }
+        .ticket-design .corner-cut.left-top { top: -10px; left: -10px; }
+        .ticket-design .corner-cut.left-bottom { bottom: -10px; left: -10px; }
+        .ticket-design .corner-cut.right-top { top: -10px; right: -10px; }
+        .ticket-design .corner-cut.right-bottom { bottom: -10px; right: -10px; }
+
+        /* 浮動導航欄按鈕樣式 */
+        .active-nav-button {
+            background-color: #06b6d4; /* color-primary */
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.5), 0 4px 6px -2px rgba(6, 182, 212, 0.05);
+        }
+        .inactive-nav-button {
+            background-color: #f0f9ff; /* light background */
+            color: #0e7490; /* color-secondary */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <!-- 頁面標題 -->
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-cyan-700">🏝️ 沖繩海島Vibe之旅 ☀️</h1>
+        <p class="text-xl text-cyan-600 mt-2">6天5夜行程總覽 (06/19 - 06/24)</p>
+        <!-- 移除 Firebase 相關的用戶 ID 顯示 -->
+    </header>
+
+    <!-- 行程頁面容器 -->
+    <div id="itinerary-page" class="">
+        <!-- 橫式天數切換 (Tab Navigation) -->
+        <nav class="sticky top-0 bg-white shadow-lg rounded-xl p-2 mb-8 z-30 overflow-x-auto">
+            <div id="day-tabs" class="flex justify-start sm:justify-center space-x-2 sm:space-x-4 min-w-max">
+                <!-- Tabs will be dynamically inserted here -->
+            </div>
+        </nav>
+
+        <!-- 行程內容區塊 -->
+        <main id="itinerary-content" class="space-y-6">
+            <!-- Itinerary cards will be dynamically inserted here -->
+        </main>
+    </div>
+
+    <!-- 記帳/預算頁面容器 -->
+    <div id="budget-page" class="hidden p-2">
+
+        <!-- 總預算顯示區 -->
+        <div class="bg-white rounded-2xl p-6 shadow-xl mb-6 border-l-4 border-cyan-500">
+            <h2 class="text-2xl font-bold text-cyan-700 mb-2">💸 總支出概覽</h2>
+            <div id="total-twd" class="text-4xl font-extrabold text-cyan-800">
+                NT$ 0
+            </div>
+            <p id="total-jpy" class="text-lg text-gray-500 mt-1">
+                約 ¥ 0
+            </p>
+            <p class="text-xs text-gray-400 mt-2">即時匯率: 1 JPY ≈ <span id="exchange-rate-display"></span> TWD</p>
+        </div>
+
+        <!-- 新增記帳表單 -->
+        <div class="bg-white rounded-2xl p-6 shadow-xl mb-8">
+            <h3 class="text-xl font-bold text-cyan-700 mb-4 border-b pb-2">新增一筆支出</h3>
+            <form id="add-expense-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- 日期 -->
+                    <div>
+                        <label for="expense-date" class="block text-sm font-medium text-gray-700">日期</label>
+                        <input type="date" id="expense-date" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
+                    </div>
+                    <!-- 金額 -->
+                    <div>
+                        <label for="expense-amount" class="block text-sm font-medium text-gray-700">金額</label>
+                        <div class="flex mt-1">
+                            <input type="number" step="1" id="expense-amount" placeholder="輸入金額" class="block w-full rounded-l-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
+                            <!-- 貨幣切換按鈕 -->
+                            <button type="button" id="currency-toggle" onclick="switchCurrency()" class="px-3 rounded-r-lg bg-cyan-500 text-white font-bold hover:bg-cyan-600 transition-colors">TWD</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 備註 -->
+                <div>
+                    <label for="expense-description" class="block text-sm font-medium text-gray-700">備註 (商品/項目)</label>
+                    <input type="text" id="expense-description" placeholder="例如：紀念品、晚餐" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
+                </div>
+                <button type="submit" id="submit-expense-btn" class="w-full color-primary text-white font-bold py-3 rounded-lg shadow-md hover:bg-cyan-600 transition-colors">
+                    <span class="material-icons align-middle mr-1">add_circle</span> 新增支出
+                </button>
+            </form>
+        </div>
+
+        <!-- 支出列表標題與刪除按鈕 -->
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-cyan-700">📝 支出明細</h3>
+            <button id="delete-mode-button" onclick="toggleDeleteMode()" class="px-4 py-2 rounded-full text-white font-semibold transition-colors duration-200 shadow-md">
+                <!-- Button text will be updated by JS -->
+            </button>
+        </div>
+        
+        <!-- 支出列表 -->
+        <div id="expense-list" class="space-y-3">
+            <p class="text-center text-gray-500">正在載入本地資料...</p>
+        </div>
+
+        <!-- 刪除確認 Modal (在非刪除模式下隱藏) -->
+        <div id="deletion-modal" class="fixed inset-0 hidden modal-backdrop items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all duration-300">
+                <h3 class="text-xl font-bold text-red-600 mb-3">確認刪除</h3>
+                <p id="deletion-count" class="text-gray-700 mb-6">您確定要刪除 [0] 筆選取的明細嗎？</p>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="hideDeletionModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="confirmDeletion()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-bold">
+                        確定刪除
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 景點詳細資訊彈出視窗 (Modal) -->
+    <div id="detail-modal" class="fixed inset-0 hidden modal-backdrop items-center justify-center p-4 z-50 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modal-content-wrapper">
+            <!-- Modal Header -->
+            <div class="p-6 color-primary rounded-t-2xl flex justify-between items-center">
+                <h2 id="modal-title" class="text-2xl font-bold text-white">景點詳細資訊</h2>
+                <button onclick="closeModal()" class="text-white hover:text-gray-200">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="modal-body" class="p-6 space-y-4 text-gray-700">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要功能切換 (浮動導航欄) -->
+    <nav id="main-nav" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-2xl p-2 z-40 transition-all duration-300 hover:scale-105">
+        <div class="flex space-x-2">
+            <button id="nav-itinerary" onclick="switchMainView('itinerary')" class="nav-button active-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 shadow-md hover:shadow-lg">
+                <span class="material-icons text-xl">luggage</span>
+                <span class="hidden sm:inline">行程</span>
+            </button>
+            <button id="nav-budget" onclick="switchMainView('budget')" class="nav-button inactive-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 hover:shadow-lg" title="記帳/預算表">
+                <span class="material-icons text-xl">account_balance_wallet</span>
+                <span class="hidden sm:inline">記帳</span>
+            </button>
+        </div>
+    </nav>
+
+
+    <script>
+        // --- 核心設定與資料 ---
+
+        // 匯率設定 (示範用)
+        const JPY_TO_TWD = 0.22; // 1 日圓 約等於 0.22 台幣
+        const TWD_TO_JPY = 1 / JPY_TO_TWD;
+        const LOCAL_STORAGE_KEY = 'okinawa_expenses';
+
+        // 應用程式狀態 (現在由 localStorage 讀寫)
+        let expenseData = []; // 實際支出資料
+        let currentInputCurrency = 'TWD'; // 預設輸入貨幣為台幣
+        
+        // --- 刪除模式狀態管理 ---
+        let isDeleting = false; // 是否處於刪除模式
+        let selectedExpenseIds = new Set(); // 儲存被選取的支出 ID (本地 UUIDs)
+
+        // 行程資料 (保持不變)
+        const itineraryData = [
+            // Day 1
+            { day: 1, date: '06/19 (週四)', activities: [
+                { time: '13:45', location: '臺灣桃園國際機場 (TPE)', type: 'airport', details: '位於桃園市大園區的機場，設有圖書館、遊戲區、購物區、餐廳並提供免費Wi-Fi。', note: '報到、登機。', food: '機場美食廣場' },
+                { time: '18:55', location: '那霸機場 (OKA)', type: 'airport', details: '沖繩的空中門戶，充滿度假氣息。', note: '入境，準備前往飯店。' },
+                { time: '20:25', location: 'Hotel Gran View Garden Okinawa', type: 'hotel', details: '休閒飯店設有簡樸的餐廳、室外游泳池和公共澡堂，並提供免費Wi-Fi。', note: '辦理入住，好好休息！', food: '飯店周邊小吃' },
+            ]},
+            // Day 2
+            { day: 2, date: '06/20 (週五)', activities: [
+                { time: '08:00', location: 'OTS臨空豐崎營業所(那霸機場)', type: 'transport', details: '辦理租車手續，開始沖繩自駕之旅！', note: '記得攜帶駕照日文譯本。', food: '便利商店早餐' },
+                { time: '09:56', location: '玉泉洞', type: 'attraction', details: '這處高聳的地下洞窟在1967年被人發現，洞穴內有超過一百萬個鐘乳石柱，還有溢滿水的池子。', note: '記得穿著輕便鞋子，洞內地面濕滑。', food: '洞穴旁 Blue Seal 冰淇淋' },
+                { time: '12:48', location: '浜邊的茶屋', type: 'food', details: '面對海灘的玻璃屋咖啡廳，享受無敵海景下午茶。', note: '[吃點心] 海景第一排座位！', food: '招牌手工蛋糕、沖繩紅葉茶' },
+                { time: '13:56', location: 'COSTCO好市多 沖繩店', type: 'shopping', details: '僅供會員購買商品的倉庫，販售量販雜貨、電子產品等各種商品。', note: '補充零食和飲用水。', food: '賣場熱狗、披薩' },
+                { time: '15:57', location: '糸滿魚市場', type: 'food', details: '新鮮漁獲和海鮮料理市場，價格實惠，是海鮮愛好者的天堂。', note: '[吃晚餐] 推薦生魚片拼盤。', food: '新鮮海膽、鮪魚生魚片' },
+                { time: '17:03', location: '沖繩 ASHIBINAA Outlet', type: 'shopping', details: '西雅圖連鎖咖啡廳位於這座大型 Outlet 中，提供購物休息的場所。', note: '逛街購物，享受折扣。', food: 'Outlet 內各種輕食' },
+                { time: '19:25', location: 'Kokusai-dori (国際通り)', type: 'attraction', details: '那霸市最熱鬧的街道，充滿了紀念品店、餐廳、和時尚小店。', note: '採購伴手禮。', food: '暖暮拉麵 (國際通店)' },
+                { time: '20:48', location: 'Hotel Gran View Garden Okinawa', type: 'hotel', details: '返回飯店。', note: '準備休息，迎接第三天！', food: '無' },
+            ]},
+            // Day 3
+            { day: 3, date: '06/21 (週六)', activities: [
+                { time: '09:20', location: '波上宮', type: 'attraction', details: '沖繩八社之一，建於 1890 年，是慶典的舉辦地點，可自懸崖上觀賞風景。', note: '參拜祈福，欣賞崖上風景。', food: '附近無特別推薦' },
+                { time: '10:58', location: '浜屋沖繩麵', type: 'food', details: '沖繩當地知名的麵店，麵條 Q 彈，湯頭濃郁。', note: '[吃午餐] 採用自動售票機點餐。', food: '招牌沖繩麵、炊飯' },
+                { time: '13:00', location: 'Orion啤酒廠', type: 'attraction', details: '提供啤酒暢飲導覽行程，包括參觀釀製過程與品嘗。', note: '[已預約] 18:00 導覽，記得準時。', food: '免費試飲新鮮啤酒' },
+                { time: '14:11', location: '名護鳳梨園', type: 'attraction', details: '主題公園，陳述通過旅遊和試吃活動來發展農業與生態。園內設有咖啡廳和禮品店。', note: '品嘗各種鳳梨產品，搭乘鳳梨號遊園。', food: '鳳梨冰淇淋、鳳梨汁' },
+                { time: '16:18', location: '永旺 名護店', type: 'shopping', details: '大型綜合超市，適合當地購物和購買土特產。', note: '點擊輸入筆記。', food: '超市熟食區' },
+                { time: '17:33', location: 'A&W Nago', type: 'food', details: '經典美式速食店，供應同名的漢堡、漂浮飲品、薯條、雞肉和薯條。', note: '品嘗 Root Beer 漂浮。', food: 'The Buddy Burger, Root Beer Float' },
+                { time: '18:53', location: '904-0401 (新住宿)', type: 'hotel', details: '今晚入住恩納村附近的 Airbnb。', note: '[Check-in] 記得跟房東確認 PIN 碼。', food: '無' },
+            ]},
+            // Day 4
+            { day: 4, date: '06/22 (週日)', activities: [
+                { time: '08:50', location: '沖繩美麗海水族館', type: 'attraction', details: '世界最大的水族館之一，有巨大的黑潮之海，能看到鯨鯊、珊瑚、魚、爬蟲類等動物。', note: '必看鯨鯊餵食秀，建議先買票。', food: '水族館內 Ocean Blue 餐廳' },
+                { time: '12:05', location: '披薩喫茶 花人逢', type: 'food', details: '位於山頂的傳統沖繩房屋。批薩(必吃)及沙拉。可欣賞海景及落日美景。', note: '[吃午餐] 美麗海景配披薩，人氣店排隊需有耐心。', food: '特製四種起司披薩、沙拉' },
+                { time: '14:42', location: '古宇利島', type: 'attraction', details: '寧靜的小島。有水景海灘且風景優美的海灘，適合浮潛和游泳。特色有名的「蝦蝦飯」。', note: '尋找心形礁石 (Heart Rock)。', food: 'Kouri Shrimp (蝦蝦飯餐車)' },
+                { time: '17:40', location: '萬座毛', type: 'attraction', details: '狀似象鼻的岩海岬石。深受遊客和攝影師的喜愛。', note: '注意安全，不要靠近懸崖邊緣。', food: '無' },
+                { time: '19:14', location: '永旺夢樂城 沖繩來客夢', type: 'shopping', details: '沖繩最大的購物中心之一，擁有國際品牌和各式美食。', note: '[吃晚餐 - 逛街] 晚餐後可逛街。', food: '美食街、各國料理餐廳' },
+                { time: '22:03', location: '904-0401 (住宿)', type: 'hotel', details: '返回恩納村附近的 Airbnb。', note: '整理戰利品。', food: '無' },
+            ]},
+            // Day 5
+            { day: 5, date: '06/23 (週一)', activities: [
+                { time: '09:35', location: '琉球村', type: 'attraction', details: '供遊客休憩的傳統琉球村，設有風俗表演，亦可體驗 DIY 手作坊。', note: '觀看傳統太鼓舞表演，體驗琉球文化。', food: '琉球村內小吃' },
+                { time: '12:30', location: '美國村', type: 'attraction', details: '美式風格的大型露天商場。有許多商店和餐廳進駐，並設有摩天輪與海濱天論。', note: '逛街購物，拍摩天輪照片。', food: 'A-Coop Steak House、Blue Seal 冰淇淋' },
+                { time: '14:23', location: 'SAN-A浦添西海岸 PARCO CITY', type: 'shopping', details: '新開幕的大型購物中心，位於西海岸，風景優美。', note: '最後衝刺購物！', food: '海邊景觀餐廳' },
+                { time: '17:37', location: 'Lacer Okinawa naha miebashi', type: 'hotel', details: '今晚入住那霸市區飯店/住宿。', note: 'Check-in/休息。', food: '無' },
+                { time: '19:00', location: 'OTS臨空豐崎營業所 (那霸機場)', type: 'transport', details: '還車手續，結束自駕。', note: '檢查油箱是否加滿。', food: '無' },
+                { time: '20:45', location: '島豚屋', type: 'food', details: '知名沖繩豬肉料理店，以阿古豬聞名。', note: '[吃晚餐 - 已預約] 3人，確認訂位。', food: '阿古豬涮涮鍋' },
+                { time: '21:50', location: 'Lacer Okinawa naha miebashi', type: 'hotel', details: '返回那霸市區飯店/住宿。', note: 'Check-in。', food: '無' },
+            ]},
+            // Day 6
+            { day: 6, date: '06/24 (週二)', activities: [
+                { time: '07:03', location: '那霸機場 (OKA)', type: 'airport', details: '準備登機回國。', note: '提前兩小時抵達機場。', food: '機場早餐' },
+                { time: '10:15', location: '臺灣桃園國際機場 (TPE)', type: 'airport', details: '抵達桃園機場，旅程結束！', note: '期待下次旅行！', food: '無' },
+            ]},
+        ];
+
+        // --- 行程功能 (不變) ---
+
+        /** 建立 Google Maps 導航連結 */
+        function getMapUrl(locationName) {
+            return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationName + ', 沖繩')}`;
+        }
+
+        /** 顯示景點詳細資訊 Modal */
+        function openModal(activity) {
+            const modal = document.getElementById('detail-modal');
+            const modalWrapper = document.getElementById('modal-content-wrapper');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.textContent = activity.location;
+            modalBody.innerHTML = ''; 
+
+            let shouldShowTicket = false;
+            
+            if (activity.type === 'airport') {
+                const isDepartureFlight = activity.location.includes('桃園') && activity.note.includes('登機'); 
+                const isReturnFlight = activity.location.includes('那霸') && activity.note.includes('回國'); 
+
+                if (isDepartureFlight || isReturnFlight) {
+                    shouldShowTicket = true;
+                }
+            }
+
+            if (shouldShowTicket) {
+                // 機場專屬 - 機票形式設計
+                modalBody.innerHTML = `
+                    <div class="ticket-design text-white p-6 rounded-lg shadow-xl relative">
+                        <div class="corner-cut left-top"></div>
+                        <div class="corner-cut right-top"></div>
+                        <div class="corner-cut left-bottom"></div>
+                        <div class="corner-cut right-bottom"></div>
+                        <h3 class="text-xl font-bold mb-4 border-b border-white/30 pb-2">✈️ 機票詳細資訊</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <p class="text-sm opacity-80">航班 / Flight</p>
+                                <p class="text-2xl font-extrabold">${activity.location.includes('桃園') ? 'CI8350' : 'CI8351'}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm opacity-80">登機門 / Gate</p>
+                                <p class="text-xl font-bold">A${Math.floor(Math.random() * 10) + 1}</p>
+                            </div>
+                        </div>
+                        <div class="rip-line"></div>
+                        <div class="flex justify-between mt-6 text-center">
+                            <div>
+                                <p class="text-sm opacity-80">出發地 / From</p>
+                                <p class="text-lg font-bold">${activity.location.includes('桃園') ? 'TPE' : 'OKA'}</p>
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <span class="material-icons text-white/80">flight</span>
+                            </div>
+                            <div>
+                                <p class="text-sm opacity-80">目的地 / To</p>
+                                <p class="text-lg font-bold">${activity.location.includes('桃園') ? 'OKA' : 'TPE'}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between">
+                            <div>
+                                <p class="text-sm opacity-80">預定時間 / Time</p>
+                                <p class="text-lg font-bold">${activity.time}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm opacity-80">艙等 / Class</p>
+                                <p class="text-lg font-bold">ECONOMY</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-lg font-bold text-cyan-700 border-b pb-1 mb-2">備註事項</h3>
+                        <p>${activity.note}</p>
+                    </div>
+                `;
+            } else {
+                // 一般景點 - 標準資訊顯示 (適用於所有非飛行活動，包含機場純抵達/離開點)
+                modalBody.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-cyan-700 border-b pb-1 mb-2">🌍 地點簡介</h3>
+                            <p>${activity.details}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-cyan-700 border-b pb-1 mb-2">🍜 推薦附近美食</h3>
+                            <p class="italic text-gray-500">${activity.food || '無推薦美食或請自行探索。'}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-cyan-700 border-b pb-1 mb-2">📝 其他備註事項</h3>
+                            <p class="text-red-500 font-medium">${activity.note}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden', 'opacity-0');
+            modal.classList.add('flex', 'opacity-100');
+            setTimeout(() => {
+                modalWrapper.classList.remove('scale-95', 'opacity-0');
+                modalWrapper.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+        }
+
+        /** 關閉 Modal */
+        function closeModal() {
+            const modal = document.getElementById('detail-modal');
+            const modalWrapper = document.getElementById('modal-content-wrapper');
+
+            modalWrapper.classList.remove('scale-100', 'opacity-100');
+            modalWrapper.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.remove('flex', 'opacity-100');
+                modal.classList.add('hidden', 'opacity-0');
+            }, 300);
+        }
+
+        /** 根據選定天數渲染行程卡片 */
+        function renderItinerary(dayIndex) {
+            const contentDiv = document.getElementById('itinerary-content');
+            contentDiv.innerHTML = '';
+            const dayData = itineraryData[dayIndex];
+
+            dayData.activities.forEach((activity, index) => {
+                const card = document.createElement('div');
+                card.className = `itinerary-card bg-white p-5 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 opacity-0`;
+                card.style.animationDelay = `${index * 0.1}s`;
+
+                let icon = '';
+                let iconColor = 'text-cyan-500';
+                switch (activity.type) {
+                    case 'airport': icon = 'local_airport'; iconColor = 'text-blue-500'; break;
+                    case 'hotel': icon = 'bed'; iconColor = 'text-teal-500'; break;
+                    case 'food': icon = 'restaurant'; iconColor = 'text-red-400'; break;
+                    case 'shopping': icon = 'shopping_bag'; iconColor = 'text-amber-500'; break;
+                    case 'attraction': icon = 'nature_people'; iconColor = 'text-emerald-500'; break;
+                    case 'transport': icon = 'directions_car'; iconColor = 'text-indigo-500'; break;
+                    default: icon = 'place';
+                }
+
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <!-- 左側: 時間與地點資訊 -->
+                        <div class="flex-1 min-w-0 pr-4 cursor-pointer" onclick="openModal(itineraryData[${dayIndex}].activities[${index}])">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="material-icons ${iconColor} text-3xl">${icon}</span>
+                                <p class="text-lg font-mono text-gray-500">${activity.time}</p>
+                            </div>
+                            <h3 class="text-2xl font-bold text-cyan-800 break-words">${activity.location}</h3>
+                            <p class="text-sm text-gray-600 truncate mt-1">${activity.note}</p>
+                        </div>
+
+                        <!-- 右側: 地圖與詳細資訊按鈕 -->
+                        <div class="flex flex-col space-y-2">
+                            <a href="${getMapUrl(activity.location)}" target="_blank" class="flex items-center justify-center p-3 rounded-full color-primary text-white shadow-md hover:bg-cyan-600 transition-colors" title="Google Map 地點">
+                                <span class="material-icons">map</span>
+                            </a>
+                            <button onclick="openModal(itineraryData[${dayIndex}].activities[${index}])" class="flex items-center justify-center p-3 rounded-full bg-cyan-100 text-cyan-700 shadow-md hover:bg-cyan-200 transition-colors" title="詳細資訊">
+                                <span class="material-icons">info</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                contentDiv.appendChild(card);
+            });
+
+            setupIntersectionObserver();
+        }
+
+        /** 設置 Tab Navigation */
+        function setupTabs() {
+            const tabsContainer = document.getElementById('day-tabs');
+            itineraryData.forEach((day, index) => {
+                const button = document.createElement('button');
+                button.textContent = `D${day.day} (${day.date})`; 
+                button.className = `day-tab px-4 py-2 text-sm sm:text-base font-semibold rounded-full transition-all duration-200 whitespace-nowrap`;
+                button.dataset.dayIndex = index;
+                button.onclick = () => switchDay(index);
+                tabsContainer.appendChild(button);
+            });
+            switchDay(0);
+        }
+
+        /** 切換天數 */
+        function switchDay(index) {
+            const tabs = document.querySelectorAll('.day-tab');
+            tabs.forEach(tab => {
+                const isSelected = parseInt(tab.dataset.dayIndex) === index;
+                if (isSelected) {
+                    tab.classList.add('color-primary', 'text-white', 'shadow-md');
+                    tab.classList.remove('bg-gray-100', 'text-cyan-700');
+                } else {
+                    tab.classList.add('bg-gray-100', 'text-cyan-700');
+                    tab.classList.remove('color-primary', 'text-white', 'shadow-md');
+                }
+            });
+            renderItinerary(index);
+        }
+
+        /** 設置卡片滑入動畫 */
+        function setupIntersectionObserver() {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        obs.unobserve(entry.target); 
+                    }
+                });
+            }, {
+                rootMargin: '0px',
+                threshold: 0.1
+            });
+
+            document.querySelectorAll('.itinerary-card').forEach(card => {
+                card.classList.remove('is-visible');
+                observer.observe(card);
+            });
+        }
+
+
+        // --- 記帳功能 (Local Storage) ---
+        
+        /**
+         * Local Storage: 從本地儲存載入支出資料
+         */
+        function loadExpensesFromLocalStorage() {
+            try {
+                const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (storedData) {
+                    // 將 JSON 字串轉換為物件陣列
+                    const parsedData = JSON.parse(storedData);
+                    // 確保 timestamp 欄位可以排序 (時間越近，timestamp值越大)
+                    expenseData = parsedData.sort((a, b) => b.timestamp - a.timestamp);
+                } else {
+                    expenseData = [];
+                }
+            } catch (error) {
+                console.error("讀取本地儲存失敗:", error);
+                expenseData = [];
+            }
+            renderExpenseList(); // 渲染列表和總計
+        }
+
+        /**
+         * Local Storage: 將支出資料儲存到本地儲存
+         */
+        function saveExpensesToLocalStorage() {
+            try {
+                // 將物件陣列轉換為 JSON 字串並儲存
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(expenseData));
+            } catch (error) {
+                console.error("儲存到本地儲存失敗:", error);
+            }
+        }
+
+        /** 切換輸入貨幣 */
+        function switchCurrency() {
+            const toggleButton = document.getElementById('currency-toggle');
+            currentInputCurrency = currentInputCurrency === 'TWD' ? 'JPY' : 'TWD';
+            toggleButton.textContent = currentInputCurrency;
+        }
+
+        /** 計算總金額並更新顯示 */
+        function calculateTotals() {
+            let totalTWD = 0;
+
+            expenseData.forEach(expense => {
+                // 確保 amount 是數字
+                const amount = Number(expense.amount);
+                if (expense.currency === 'TWD') {
+                    totalTWD += amount;
+                } else if (expense.currency === 'JPY') {
+                    totalTWD += amount * JPY_TO_TWD;
+                }
+            });
+
+            const totalJPY = totalTWD * TWD_TO_JPY;
+
+            document.getElementById('total-twd').textContent = `NT$ ${totalTWD.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('total-jpy').textContent = `約 ¥ ${totalJPY.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('exchange-rate-display').textContent = JPY_TO_TWD.toFixed(4);
+        }
+
+        /** 渲染支出列表 */
+        function renderExpenseList() {
+            const listContainer = document.getElementById('expense-list');
+            const deleteButton = document.getElementById('delete-mode-button');
+            listContainer.innerHTML = '';
+
+            // 1. 更新刪除按鈕狀態
+            if (isDeleting) {
+                deleteButton.textContent = `刪除 (${selectedExpenseIds.size})`;
+                deleteButton.classList.remove('bg-gray-400');
+                deleteButton.classList.add('bg-red-500', 'hover:bg-red-600');
+                deleteButton.onclick = () => {
+                    if (selectedExpenseIds.size > 0) {
+                        openDeletionModal(selectedExpenseIds.size);
+                    } else {
+                        // 如果沒有選擇任何項目，直接退出刪除模式
+                        toggleDeleteMode();
+                    }
+                };
+            } else {
+                deleteButton.innerHTML = `<span class="material-icons text-lg mr-1 align-middle">delete</span> 進入刪除模式`;
+                deleteButton.classList.add('bg-gray-400', 'hover:bg-gray-500');
+                deleteButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                deleteButton.onclick = toggleDeleteMode;
+            }
+
+            // 2. 渲染資料
+            if (expenseData.length === 0) {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 p-8">尚未新增任何支出，點擊上方按鈕開始記帳吧！</p>';
+            } else {
+                expenseData.forEach(expense => {
+                    const amountDisplay = expense.currency === 'JPY'
+                        ? `<span class="text-xl font-semibold text-red-500">¥ ${Number(expense.amount).toFixed(0)}</span>`
+                        : `<span class="text-xl font-semibold text-green-600">NT$ ${Number(expense.amount).toFixed(0)}</span>`;
+                    
+                    // 使用 ISO 格式的 date 欄位
+                    const dateDisplay = new Date(expense.date).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
+                    const isSelected = selectedExpenseIds.has(expense.id);
+
+                    let cardClasses = 'bg-white p-4 rounded-xl shadow flex items-center justify-between transition-shadow hover:shadow-lg';
+                    if (isDeleting) {
+                        cardClasses += ' cursor-pointer opacity-50 transition-all duration-200';
+                        if (isSelected) {
+                            cardClasses = cardClasses.replace('opacity-50', 'opacity-100 ring-2 ring-red-400 bg-red-50');
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = cardClasses;
+                    
+                    if (isDeleting) {
+                        // 點擊卡片來切換選取狀態
+                        card.onclick = () => toggleSelection(expense.id);
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex-1 min-w-0 pr-4">
+                            <p class="text-sm font-medium text-gray-500">${dateDisplay}</p>
+                            <p class="text-lg font-bold text-gray-800 truncate">${expense.description}</p>
+                        </div>
+                        <div class="text-right flex items-center space-x-3">
+                            ${amountDisplay}
+                            ${isDeleting ? `<span class="material-icons text-xl ${isSelected ? 'text-red-500' : 'text-gray-300'}">${isSelected ? 'check_circle' : 'circle'}</span>` : ''}
+                        </div>
+                    `;
+                    listContainer.appendChild(card);
+                });
+            }
+
+            calculateTotals();
+        }
+
+        /** 處理新增支出表單提交 (Local Storage Write) */
+        function addExpense(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-expense-btn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white inline-block mr-2"></div> 儲存中...`;
+
+
+            const dateInput = document.getElementById('expense-date');
+            const amountInput = document.getElementById('expense-amount');
+            const descriptionInput = document.getElementById('expense-description');
+
+            const newExpenseData = {
+                // 使用唯一 ID，方便刪除
+                id: crypto.randomUUID(), 
+                date: dateInput.value,
+                amount: parseFloat(amountInput.value),
+                currency: currentInputCurrency,
+                // 使用當前時間戳來排序 (越晚新增，值越大)
+                timestamp: Date.now() 
+            };
+
+            if (newExpenseData.date && newExpenseData.amount > 0 && descriptionInput.value) {
+                try {
+                    // 1. 新增到記憶體中的陣列
+                    expenseData.unshift(newExpenseData); // 放在最前面
+                    
+                    // 2. 儲存到 Local Storage
+                    saveExpensesToLocalStorage();
+
+                    // 3. 重新渲染列表
+                    renderExpenseList();
+
+                    // 4. 清空表單
+                    amountInput.value = '';
+                    descriptionInput.value = '';
+                    dateInput.valueAsDate = new Date(); // 重設日期為今天
+
+                } catch (error) {
+                    console.error("Error adding expense to local storage: ", error);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span class="material-icons align-middle mr-1">add_circle</span> 新增支出`;
+                }
+            } else {
+                console.error("請填寫所有欄位並確保金額大於零");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span class="material-icons align-middle mr-1">add_circle</span> 新增支出`;
+            }
+        }
+
+        // --- 刪除功能邏輯 ---
+
+        /** 切換刪除模式 */
+        function toggleDeleteMode() {
+            if (expenseData.length === 0 && !isDeleting) return;
+
+            hideDeletionModal();
+
+            isDeleting = !isDeleting;
+            // 退出刪除模式時清空選取
+            if (!isDeleting) {
+                selectedExpenseIds.clear();
+            }
+
+            renderExpenseList();
+        }
+
+        /** 處理項目選取 */
+        function toggleSelection(id) {
+            if (!isDeleting) return;
+
+            if (selectedExpenseIds.has(id)) {
+                selectedExpenseIds.delete(id);
+            } else {
+                selectedExpenseIds.add(id);
+            }
+
+            renderExpenseList();
+        }
+
+        /** 打開刪除確認 Modal */
+        function openDeletionModal(count) {
+            document.getElementById('deletion-count').textContent = `您確定要刪除 [${count}] 筆選取的明細嗎？`;
+            const modal = document.getElementById('deletion-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        /** 隱藏刪除確認 Modal */
+        function hideDeletionModal() {
+            document.getElementById('deletion-modal').classList.add('hidden');
+            document.getElementById('deletion-modal').classList.remove('flex');
+        }
+
+        /** 確認刪除選定的項目 (Local Storage Delete) */
+        function confirmDeletion() {
+            if (selectedExpenseIds.size === 0) {
+                hideDeletionModal();
+                return;
+            }
+            
+            // 1. 過濾掉選定的項目
+            expenseData = expenseData.filter(expense => !selectedExpenseIds.has(expense.id));
+            
+            // 2. 儲存到 Local Storage
+            saveExpensesToLocalStorage();
+            
+            // 3. 清空選取並退出刪除模式
+            selectedExpenseIds.clear();
+            toggleDeleteMode(); 
+            
+            hideDeletionModal();
+            // renderExpenseList 會在 toggleDeleteMode 裡被呼叫
+        }
+
+        // --- 主視圖切換與初始化 ---
+
+        /** 切換主視圖 (行程或記帳) */
+        function switchMainView(view) {
+            const itineraryPage = document.getElementById('itinerary-page');
+            const budgetPage = document.getElementById('budget-page');
+            const navItinerary = document.getElementById('nav-itinerary');
+            const navBudget = document.getElementById('nav-budget');
+
+            if (view === 'itinerary') {
+                itineraryPage.classList.remove('hidden');
+                budgetPage.classList.add('hidden');
+                
+                navItinerary.classList.add('active-nav-button');
+                navItinerary.classList.remove('inactive-nav-button');
+                navBudget.classList.remove('active-nav-button');
+                navBudget.classList.add('inactive-nav-button');
+            } else if (view === 'budget') {
+                itineraryPage.classList.add('hidden');
+                budgetPage.classList.remove('hidden');
+
+                navBudget.classList.add('active-nav-button');
+                navBudget.classList.remove('inactive-nav-button');
+                navItinerary.classList.remove('active-nav-button');
+                navItinerary.classList.add('inactive-nav-button');
+
+                // 進入記帳頁面時，確保資料已載入並渲染
+                isDeleting = false;
+                selectedExpenseIds.clear();
+                loadExpensesFromLocalStorage(); 
+            }
+        }
+
+
+        /** 初始化 */
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTabs();
+            document.getElementById('add-expense-form').addEventListener('submit', addExpense);
+            document.getElementById('expense-date').valueAsDate = new Date(); // 預設日期為今天
+
+            // 關閉 Modal 的事件監聽
+            document.getElementById('detail-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'detail-modal') {
+                    closeModal();
+                }
+            });
+
+            // 預設顯示行程頁面
+            switchMainView('itinerary');
+        });
+
+    </script>
+</body>
+</html>
