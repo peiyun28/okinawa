@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家庭旅行-沖繩篇</title>
+    <title>沖繩旅行</title>
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 載入 Icon -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <!-- 新增：行動裝置/加入主畫面設定 (Home Screen Icon & Theme) -->
+    <!-- 加入主畫面圖片 (Home Screen Icon) -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://static.lifetour.info/eWeb_lifetour/IMGDB/003462/003520/003528/003548/003568/00113572.WEBP">
     <link rel="icon" type="image/png" sizes="32x32" href="https://static.lifetour.info/eWeb_lifetour/IMGDB/003462/003520/003528/003548/003568/00113572.WEBP">
     
@@ -298,12 +298,12 @@
 
         // --- 行程功能 (不變) ---
 
-        /** 建立 Google Maps 導航連結 */
+        /* 建立 Google Maps 導航連結 */
         function getMapUrl(locationName) {
             return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationName + ', 沖繩')}`;
         }
 
-        /** 顯示景點詳細資訊 Modal */
+        /* 顯示景點詳細資訊 Modal */
         function openModal(activity) {
             const modal = document.getElementById('detail-modal');
             const modalWrapper = document.getElementById('modal-content-wrapper');
@@ -328,14 +328,14 @@
             }
 
             if (shouldShowTicket) {
-                // 機場專屬 - 機票形式設計
+                // 機場-機票設計
                 modalBody.innerHTML = `
                     <div class="ticket-design text-white p-6 rounded-lg shadow-xl relative">
                         <div class="corner-cut left-top"></div>
                         <div class="corner-cut right-top"></div>
                         <div class="corner-cut left-bottom"></div>
                         <div class="corner-cut right-bottom"></div>
-                        <h3 class="text-xl font-bold mb-4 border-b border-white/30 pb-2">機 票 資 訊 ： 中 華 航 空 A330-300</h3>
+                        <h3 class="text-xl font-bold mb-4 border-b border-white/30 pb-2">機 票 資 訊 ： 中 華 航 空</h3>
                         <div class="flex justify-between items-center mb-4">
                             <div>
                                 <p class="text-sm opacity-80">航班 / Flight</p>
@@ -405,7 +405,7 @@
 
         }
 
-        /** 關閉 Modal */
+        /* 關閉視窗 */
         function closeModal() {
             const modal = document.getElementById('detail-modal');
             const modalWrapper = document.getElementById('modal-content-wrapper');
@@ -419,7 +419,7 @@
             }, 300);
         }
 
-        /** 根據選定天數渲染行程卡片 */
+        /* 根據選定天數做成行程卡片 */
         function renderItinerary(dayIndex) {
             const contentDiv = document.getElementById('itinerary-content');
             contentDiv.innerHTML = '';
@@ -472,7 +472,7 @@
             setupIntersectionObserver();
         }
 
-        /** 設置 Tab Navigation */
+        /* 設置滾動日期 */
         function setupTabs() {
             const tabsContainer = document.getElementById('day-tabs');
             itineraryData.forEach((day, index) => {
@@ -527,11 +527,9 @@
         }
 
 
-        // --- 記帳功能 (Local Storage) ---
+        // 記帳功能（目前只能存本機）
         
-        /**
-         * Local Storage: 從本地儲存載入支出資料
-         */
+        /* Local Storage: 讀取本機儲存的資料載入明細表 */
         function loadExpensesFromLocalStorage() {
             try {
                 const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -550,9 +548,7 @@
             renderExpenseList(); // 渲染列表和總計
         }
 
-        /**
-         * Local Storage: 將支出資料儲存到本地儲存
-         */
+        /* Local Storage: 將輸入資料儲存到本機 */
         function saveExpensesToLocalStorage() {
             try {
                 // 將物件陣列轉換為 JSON 字串並儲存
@@ -562,14 +558,14 @@
             }
         }
 
-        /** 切換輸入貨幣 */
+        /* 切換貨幣 */
         function switchCurrency() {
             const toggleButton = document.getElementById('currency-toggle');
             currentInputCurrency = currentInputCurrency === 'TWD' ? 'JPY' : 'TWD';
             toggleButton.textContent = currentInputCurrency;
         }
 
-        /** 計算總金額並更新顯示 */
+        /* 計算總金額並更新顯示 */
         function calculateTotals() {
             let totalTWD = 0;
 
@@ -590,13 +586,13 @@
             document.getElementById('exchange-rate-display').textContent = JPY_TO_TWD.toFixed(4);
         }
 
-        /** 渲染支出列表 */
+        /* 支出列表 */
         function renderExpenseList() {
             const listContainer = document.getElementById('expense-list');
             const deleteButton = document.getElementById('delete-mode-button');
             listContainer.innerHTML = '';
 
-            // 1. 更新刪除按鈕狀態
+            // 1. 刪除按鈕狀態
             if (isDeleting) {
                 deleteButton.textContent = `刪除 (${selectedExpenseIds.size})`;
                 deleteButton.classList.remove('bg-gray-400');
@@ -616,7 +612,7 @@
                 deleteButton.onclick = toggleDeleteMode;
             }
 
-            // 2. 渲染資料
+            // 2. 資料顯示
             if (expenseData.length === 0) {
                 listContainer.innerHTML = '<p class="text-center text-gray-500 p-8">尚未新增任何支出，輸入上方表單開始記帳吧！</p>';
             } else {
@@ -641,7 +637,7 @@
                     card.className = cardClasses;
                     
                     if (isDeleting) {
-                        // 點擊卡片來切換選取狀態
+                        // 點擊明細卡片來切換選取狀態
                         card.onclick = () => toggleSelection(expense.id);
                     }
 
@@ -662,7 +658,7 @@
             calculateTotals();
         }
 
-        /** 處理新增支出表單提交 (Local Storage Write) */
+        /* 處理新增支出表單提交 */
         function addExpense(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submit-expense-btn');
@@ -676,7 +672,7 @@
             const descriptionInput = document.getElementById('expense-description');
 
             const newExpenseData = {
-                // 使用唯一 ID，方便刪除
+                // 使用唯一ID，方便刪除
                 id: crypto.randomUUID(), 
                 date: dateInput.value,
                 amount: parseFloat(amountInput.value),
@@ -694,7 +690,7 @@
                     // 2. 儲存到 Local Storage
                     saveExpensesToLocalStorage();
 
-                    // 3. 重新渲染列表
+                    // 3. 重新顯示列表
                     renderExpenseList();
 
                     // 4. 清空表單
@@ -715,9 +711,9 @@
             }
         }
 
-        // --- 刪除功能邏輯 ---
+        // 刪除 功能
 
-        /** 切換刪除模式 */
+        /* 切換刪除模式 */
         function toggleDeleteMode() {
             if (expenseData.length === 0 && !isDeleting) return;
 
@@ -732,7 +728,7 @@
             renderExpenseList();
         }
 
-        /** 處理項目選取 */
+        /* 處理項目選取 */
         function toggleSelection(id) {
             if (!isDeleting) return;
 
@@ -745,7 +741,7 @@
             renderExpenseList();
         }
 
-        /** 打開刪除確認 Modal */
+        /* 打開刪除確認 */
         function openDeletionModal(count) {
             document.getElementById('deletion-count').textContent = `您確定要刪除 [${count}] 筆選取的明細嗎？`;
             const modal = document.getElementById('deletion-modal');
@@ -753,13 +749,13 @@
             modal.classList.add('flex');
         }
 
-        /** 隱藏刪除確認 Modal */
+        /* 隱藏刪除確認 */
         function hideDeletionModal() {
             document.getElementById('deletion-modal').classList.add('hidden');
             document.getElementById('deletion-modal').classList.remove('flex');
         }
 
-        /** 確認刪除選定的項目 (Local Storage Delete) */
+        /* 確認刪除選定的項目 (Local Storage Delete) */
         function confirmDeletion() {
             if (selectedExpenseIds.size === 0) {
                 hideDeletionModal();
@@ -782,9 +778,9 @@
 
         
 
-        // --- 主視圖切換與初始化 ---
+        // 主畫面切換與初始化
 
-        /** 切換主視圖 (行程或記帳) */
+        /* 切換主畫面 (行程或記帳) */
         function switchMainView(view) {
             const itineraryPage = document.getElementById('itinerary-page');
             const budgetPage = document.getElementById('budget-page');
@@ -816,7 +812,7 @@
         }
 
 
-        /** 初始化 */
+        /* 初始化 */
         document.addEventListener('DOMContentLoaded', () => {
             setupTabs();
             document.getElementById('add-expense-form').addEventListener('submit', addExpense);
