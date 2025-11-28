@@ -119,7 +119,7 @@
 
         <!-- 總預算顯示區 -->
         <div class="bg-white rounded-2xl p-6 shadow-xl mb-6 border-l-4 border-cyan-500">
-            <h2 class="text-2xl font-bold text-cyan-700 mb-2">💸 預計總支出</h2>
+            <h2 class="text-2xl font-bold text-cyan-700 mb-2">💰 行 程 總 支 出 （ 隨 身 版 ）</h2>
             <div id="total-twd" class="text-4xl font-extrabold text-cyan-800">
                 NT$ 0
             </div>
@@ -131,17 +131,17 @@
 
         <!-- 新增記帳表單 -->
         <div class="bg-white rounded-2xl p-6 shadow-xl mb-8">
-            <h3 class="text-xl font-bold text-cyan-700 mb-4 border-b pb-2">新增一筆支出</h3>
+            <h3 class="text-xl font-bold text-cyan-700 mb-4 border-b pb-2">📝 我 要 記 帳</h3>
             <form id="add-expense-form" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <!-- 日期 -->
                     <div>
-                        <label for="expense-date" class="block text-sm font-medium text-gray-700">日期</label>
+                        <label for="expense-date" class="block text-sm font-medium text-gray-700">日 期</label>
                         <input type="date" id="expense-date" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
                     </div>
                     <!-- 金額 -->
                     <div>
-                        <label for="expense-amount" class="block text-sm font-medium text-gray-700">金額</label>
+                        <label for="expense-amount" class="block text-sm font-medium text-gray-700">金 額</label>
                         <div class="flex mt-1">
                             <input type="number" step="1" id="expense-amount" placeholder="輸入金額" class="block w-full rounded-l-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
                             <!-- 貨幣切換按鈕 -->
@@ -151,8 +151,8 @@
                 </div>
                 <!-- 備註 -->
                 <div>
-                    <label for="expense-description" class="block text-sm font-medium text-gray-700">備註 (商品/項目)</label>
-                    <input type="text" id="expense-description" placeholder="例如：紀念品、晚餐" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
+                    <label for="expense-description" class="block text-sm font-medium text-gray-700">備 註</label>
+                    <input type="text" id="expense-description" placeholder="例如：機票" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
                 </div>
                 <button type="submit" id="submit-expense-btn" class="w-full color-primary text-white font-bold py-3 rounded-lg shadow-md hover:bg-cyan-600 transition-colors">
                     <span class="material-icons align-middle mr-1">add_circle</span> 新增支出
@@ -162,7 +162,7 @@
 
         <!-- 支出列表標題與刪除按鈕 -->
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-bold text-cyan-700">📝 支出明細</h3>
+            <h3 class="text-2xl font-bold text-cyan-700">🧾 明 細 表</h3>
             <button id="delete-mode-button" onclick="toggleDeleteMode()" class="px-4 py-2 rounded-full text-white font-semibold transition-colors duration-200 shadow-md">
                 <!-- Button text will be updated by JS -->
             </button>
@@ -196,7 +196,7 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modal-content-wrapper">
             <!-- Modal Header -->
             <div class="p-6 color-primary rounded-t-2xl flex justify-between items-center">
-                <h2 id="modal-title" class="text-2xl font-bold text-white">景點詳細資訊</h2>
+                <h2 id="modal-title" class="text-2xl font-bold text-white">景點資訊</h2>
                 <button onclick="closeModal()" class="text-white hover:text-gray-200">
                     <span class="material-icons">close</span>
                 </button>
@@ -334,14 +334,14 @@
                         <div class="corner-cut right-top"></div>
                         <div class="corner-cut left-bottom"></div>
                         <div class="corner-cut right-bottom"></div>
-                        <h3 class="text-xl font-bold mb-4 border-b border-white/30 pb-2">機 票 資 訊 A330-300</h3>
+                        <h3 class="text-xl font-bold mb-4 border-b border-white/30 pb-2">機 票 資 訊 ： 中 華 航 空 （ 機型 A330-300 ）</h3>
                         <div class="flex justify-between items-center mb-4">
                             <div>
                                 <p class="text-sm opacity-80">航班 / Flight</p>
                                 <p class="text-2xl font-extrabold">${activity.location.includes('桃園') ? 'CI-122' : 'CI-121'}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm opacity-80">登機門 / Gate</p>
+                                <p class="text-sm opacity-80">航廈 / Terminal</p>
                                 <p class="text-xl font-bold">${activity.location.includes('桃園') ? 'T2' : 'T1'}</p>
                             </div>
                         </div>
@@ -366,7 +366,7 @@
                             </div>
                             <div>
                                 <p class="text-sm opacity-80">艙等 / Class</p>
-                                <p class="text-lg font-bold">ECONOMY</p>
+                                <p class="text-lg font-bold">經濟艙</p>
                             </div>
                         </div>
                     </div>
@@ -476,7 +476,11 @@
             const tabsContainer = document.getElementById('day-tabs');
             itineraryData.forEach((day, index) => {
                 const button = document.createElement('button');
-                button.textContent = `D${day.day} (${day.date})`; 
+                // --- 調整 Tab 顯示格式: '06/19 (週四)' -> '6/19(四)' ---
+                let formattedDate = day.date.replace(/0(\d)/g, '$1'); // 移除日期前導零 (06/19 (週四) -> 6/19 (週四))
+                formattedDate = formattedDate.replace(' (週', '(');      // 簡化週次格式 (6/19 (週四) -> 6/19(四))
+                // 組合最終字串: 'D1 6/19(四)'
+                button.textContent = `D${day.day} ${formattedDate}`;
                 button.className = `day-tab px-4 py-2 text-sm sm:text-base font-semibold rounded-full transition-all duration-200 whitespace-nowrap`;
                 button.dataset.dayIndex = index;
                 button.onclick = () => switchDay(index);
@@ -485,7 +489,7 @@
             switchDay(0);
         }
 
-        /** 切換天數 */
+        /* 切換天數 */
         function switchDay(index) {
             const tabs = document.querySelectorAll('.day-tab');
             tabs.forEach(tab => {
@@ -501,7 +505,7 @@
             renderItinerary(index);
         }
 
-        /** 設置卡片滑入動畫 */
+        /* 設置卡片滑入動畫 */
         function setupIntersectionObserver() {
             const observer = new IntersectionObserver((entries, obs) => {
                 entries.forEach(entry => {
@@ -605,7 +609,7 @@
                     }
                 };
             } else {
-                deleteButton.innerHTML = `<span class="material-icons text-lg mr-1 align-middle">delete</span> 進入刪除模式`;
+                deleteButton.innerHTML = `<span class="material-icons text-lg mr-1 align-middle">delete</span> 刪除`;
                 deleteButton.classList.add('bg-gray-400', 'hover:bg-gray-500');
                 deleteButton.classList.remove('bg-red-500', 'hover:bg-red-600');
                 deleteButton.onclick = toggleDeleteMode;
@@ -613,7 +617,7 @@
 
             // 2. 渲染資料
             if (expenseData.length === 0) {
-                listContainer.innerHTML = '<p class="text-center text-gray-500 p-8">尚未新增任何支出，點擊上方按鈕開始記帳吧！</p>';
+                listContainer.innerHTML = '<p class="text-center text-gray-500 p-8">尚未新增任何支出，輸入上方表單開始記帳吧！</p>';
             } else {
                 expenseData.forEach(expense => {
                     const amountDisplay = expense.currency === 'JPY'
@@ -774,6 +778,8 @@
             hideDeletionModal();
             // renderExpenseList 會在 toggleDeleteMode 裡被呼叫
         }
+
+        
 
         // --- 主視圖切換與初始化 ---
 
