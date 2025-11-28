@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6天5夜沖繩之旅</title>
+    <title>家庭旅行-沖繩篇</title>
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 載入 Icon -->
@@ -94,9 +94,8 @@
 
     <!-- 頁面標題 -->
     <header class="text-center mb-8">
-        <h1 class="text-4xl font-extrabold text-cyan-700">🇯🇵 OKINAWA</h1>
-        <p class="text-xl text-cyan-600 mt-2">6 天 5 夜 家 庭 旅 遊</p>
-        <!-- 移除 Firebase 相關的用戶 ID 顯示 -->
+        <h1 class="text-4xl font-extrabold text-cyan-700">OKINAWA</h1>
+        <p class="text-xl text-cyan-600 mt-2">- 家 庭 旅 遊 -</p>
     </header>
 
     <!-- 行程頁面容器 -->
@@ -117,9 +116,9 @@
     <!-- 記帳/預算頁面容器 -->
     <div id="budget-page" class="hidden p-2">
 
-        <!-- 總預算顯示區 -->
+        <!-- 總支出顯示區 -->
         <div class="bg-white rounded-2xl p-6 shadow-xl mb-6 border-l-4 border-cyan-500">
-            <h2 class="text-2xl font-bold text-cyan-700 mb-2">💰 行 程 總 支 出 （ 隨 身 版 ）</h2>
+            <h2 class="text-2xl font-bold text-cyan-700 mb-2">💰（ 個 人 ） 總 支 出</h2>
             <div id="total-twd" class="text-4xl font-extrabold text-cyan-800">
                 NT$ 0
             </div>
@@ -136,12 +135,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <!-- 日期 -->
                     <div>
-                        <label for="expense-date" class="block text-sm font-medium text-gray-700">日 期</label>
+                        <label for="expense-date" class="block text-sm font-medium text-gray-700">日 期 ：</label>
                         <input type="date" id="expense-date" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
                     </div>
                     <!-- 金額 -->
                     <div>
-                        <label for="expense-amount" class="block text-sm font-medium text-gray-700">金 額</label>
+                        <label for="expense-amount" class="block text-sm font-medium text-gray-700">金 額 ：</label>
                         <div class="flex mt-1">
                             <input type="number" step="1" id="expense-amount" placeholder="輸入金額" class="block w-full rounded-l-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
                             <!-- 貨幣切換按鈕 -->
@@ -151,7 +150,7 @@
                 </div>
                 <!-- 備註 -->
                 <div>
-                    <label for="expense-description" class="block text-sm font-medium text-gray-700">備 註</label>
+                    <label for="expense-description" class="block text-sm font-medium text-gray-700">備 註 ：</label>
                     <input type="text" id="expense-description" placeholder="例如：機票" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 p-2" required>
                 </div>
                 <button type="submit" id="submit-expense-btn" class="w-full color-primary text-white font-bold py-3 rounded-lg shadow-md hover:bg-cyan-600 transition-colors">
@@ -163,20 +162,18 @@
         <!-- 支出列表標題與刪除按鈕 -->
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-2xl font-bold text-cyan-700">🧾 明 細 表</h3>
-            <button id="delete-mode-button" onclick="toggleDeleteMode()" class="px-4 py-2 rounded-full text-white font-semibold transition-colors duration-200 shadow-md">
-                <!-- Button text will be updated by JS -->
-            </button>
+            <button id="delete-mode-button" onclick="toggleDeleteMode()" class="px-4 py-2 rounded-full text-white font-semibold transition-colors duration-200 shadow-md"></button>
         </div>
         
         <!-- 支出列表 -->
         <div id="expense-list" class="space-y-3">
-            <p class="text-center text-gray-500">正在載入本地資料...</p>
+            <p class="text-center text-gray-500">正在載入資料...</p>
         </div>
 
-        <!-- 刪除確認 Modal (在非刪除模式下隱藏) -->
+        <!-- 刪除確認框(在非刪除模式下隱藏) -->
         <div id="deletion-modal" class="fixed inset-0 hidden modal-backdrop items-center justify-center p-4 z-50">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all duration-300">
-                <h3 class="text-xl font-bold text-red-600 mb-3">確認刪除</h3>
+                <h3 class="text-xl font-bold text-red-600 mb-3">確定刪除</h3>
                 <p id="deletion-count" class="text-gray-700 mb-6">您確定要刪除 [0] 筆選取的明細嗎？</p>
                 <div class="flex justify-end space-x-3">
                     <button onclick="hideDeletionModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
@@ -191,7 +188,7 @@
 
     </div>
 
-    <!-- 景點詳細資訊彈出視窗 -->
+    <!-- 景點資訊彈出視窗 -->
     <div id="detail-modal" class="fixed inset-0 hidden modal-backdrop items-center justify-center p-4 z-50 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modal-content-wrapper">
             <!-- Modal Header -->
@@ -214,21 +211,19 @@
         <div class="flex space-x-2">
             <button id="nav-itinerary" onclick="switchMainView('itinerary')" class="nav-button active-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 shadow-md hover:shadow-lg">
                 <span class="material-icons text-xl">luggage</span>
-                <span class="hidden sm:inline">行程</span>
+                <span class="hidden sm:inline">行程總覽</span>
             </button>
-            <button id="nav-budget" onclick="switchMainView('budget')" class="nav-button inactive-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 hover:shadow-lg" title="記帳/預算表">
+            <button id="nav-budget" onclick="switchMainView('budget')" class="nav-button inactive-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 hover:shadow-lg" title="記帳表">
                 <span class="material-icons text-xl">account_balance_wallet</span>
-                <span class="hidden sm:inline">記帳</span>
+                <span class="hidden sm:inline">記帳明細</span>
             </button>
         </div>
     </nav>
 
 
     <script>
-        // --- 核心設定與資料 ---
-
         // 匯率設定 (示範用)
-        const JPY_TO_TWD = 0.20; // 1 日圓 約等於 0.20 台幣
+        const JPY_TO_TWD = 0.201; // 1 日圓 約等於 0.201 台幣
         const TWD_TO_JPY = 1 / JPY_TO_TWD;
         const LOCAL_STORAGE_KEY = 'okinawa_expenses';
 
@@ -241,57 +236,58 @@
         let selectedExpenseIds = new Set(); // 儲存被選取的支出 ID (本地 UUIDs)
 
         // 行程資料
+        // 
         const itineraryData = [
             // Day 1
-            { day: 1, date: '06/19 (週四)', activities: [
-                { time: '13:45', location: '桃園國際機場 (TPE)', type: 'airport',  note: '1. 線上報到劃位 → 登機<br>2. 可預選飛機餐🍴'},
-                { time: '18:55', location: '那霸機場 (OKA)', type: 'airport', details: '那霸機場是一座位於日本沖繩縣那霸市的第二種機場，第二次世界大戰後被美軍接管，該設施成為美國太平洋空軍運營控制下的基地，稱為那霸空軍基地。', note: '入境！搭乘公車前往飯店' },
-                { time: '20:25', location: 'Hotel Gran View Garden Okinawa', type: 'hotel', details: '休閒飯店設有簡樸的餐廳、室外游泳池和公共澡堂，並提供免費Wi-Fi。', note: '辦理入住，休息！', food: '飯店附近的便利商店' },
+            { day: 1, date: '06/24 (週三)', activities: [
+                { time: '14:05', location: '桃園國際機場 (TPE)', type: 'airport',  note: '1. App 線上報到劃位 → 登機啦<br>2. 可預選飛機餐🍴<br><br><a href="https://www.china-airlines.com/tw/zh">🔍 <em>官網</em></a>'},
+                { time: '19:45', location: '那霸機場 (OKA)', type: 'airport', details: '那霸機場是一座位於日本沖繩縣那霸市的第二種機場，第二次世界大戰後被美軍接管，該設施成為美國太平洋空軍運營控制下的基地，稱為那霸空軍基地。', note: '入境！搭乘公車前往飯店' },
+                { time: '21:00', location: 'Hotel Gran View Garden Okinawa', type: 'hotel', details: '休閒飯店設有簡樸的餐廳、室外游泳池和公共澡堂，並提供免費Wi-Fi。', note: 'Check-in，休息！<br><br><a href="https://granview.co.jp/garden-okinawa/">🔍 <em>官網</em></a>', food: '飯店附近的便利商店' },
             ]},
             // Day 2
-            { day: 2, date: '06/20 (週五)', activities: [
-                { time: '08:00', location: 'OTS臨空豐崎營業所(那霸機場)', type: 'transport', details: '點擊👉 <a href="https://www.otsinternational.jp/otsrentacar/cn/?gad_source=1&gad_campaignid=2043132611&gbraid=0AAAAADjAZGX0UPjaHpuN2F5BYJ7IxyXm_&gclid=Cj0KCQiAiqDJBhCXARIsABk2kSkIMEZ0xllufsd7OwCxITBH72JT6XTg48hR2LQdu0gT2r0bYW2XLa0aAiN0EALw_wcB">官網</a><br>辦理租車手續', note: '1. 記得攜帶駕照「日文譯本」<br>2. 那霸機場至營業所之間免費接送<br>3. 距離那霸機場15分鐘車程', food: '無' },
+            { day: 2, date: '06/25 (週四)', activities: [
+                { time: '08:00', location: 'OTS臨空豐崎營業所(那霸機場)', type: 'transport', details: '沖繩最大租車公司之一', note: '1. 記得攜帶駕照「日文譯本」<br>2. 那霸機場至營業所之間免費接送<br>3. 距離那霸機場15分鐘車程<br><br><a href="https://www.otsinternational.jp/otsrentacar/cn/?gad_source=1&gad_campaignid=2043132611&gbraid=0AAAAADjAZGX0UPjaHpuN2F5BYJ7IxyXm_&gclid=Cj0KCQiAiqDJBhCXARIsABk2kSkIMEZ0xllufsd7OwCxITBH72JT6XTg48hR2LQdu0gT2r0bYW2XLa0aAiN0EALw_wcB">🔍 <em>官網</em></a>', food: '無' },
                 { time: '09:56', location: '玉泉洞', type: 'attraction', details: '沖繩島上最大的鐘乳石洞！<br>目前開放參觀的區域約890公尺，參觀時間預估30至40分鐘，沿路可一睹歷經30萬年歲月形成、共100萬株以上的鐘乳石絕景', note: '記得防滑步鞋，室內地面濕滑！' },
-                { time: '12:48', location: '浜邊的茶屋', type: 'food', details: '在海灘旁的懸崖邊簡單搭個木屋平台就開始做起生意，這樣的流浪氣息卻很符合現在大家喜歡的味道，所以聽說浜邊的茶屋可以算是目前沖繩南部很難排到的海景咖啡廳啦！', note: '登記的本子就掛在門邊<br>上面就填寫姓氏（請用英文）、人數和指定座位區', food: '招牌甜點、飲料' },
-                { time: '13:56', location: 'COSTCO好市多 沖繩店', type: 'shopping', details: 'COSTCO好市多沖繩店（コストコホールセール沖縄南城倉庫店），位於沖繩本島南部的南城市', note: '賣場營業時間：10:00~20:00'},
+                { time: '12:48', location: '浜邊的茶屋', type: 'food', details: '在海灘旁的懸崖邊簡單搭個木屋平台就開始做起生意，這樣的流浪氣息卻很符合現在大家喜歡的味道，所以聽說浜邊的茶屋可以算是目前沖繩南部很難排到的海景咖啡廳啦！', note: '登記的本子就掛在門邊<br>上面就填寫姓氏（請用英文）、人數和指定座位區<br><br><a href="https://sachibaru.jp/hamacha/">🔍 <em>官網</em></a>', food: '招牌甜點、飲料' },
+                { time: '13:56', location: 'COSTCO好市多 沖繩店', type: 'shopping', details: 'COSTCO好市多沖繩店（コストコホールセール沖縄南城倉庫店），位於沖繩本島南部的南城市', note: '賣場營業時間：10:00~20:00<br><br><a href="https://www.costco.co.jp/store-finder/Okinawa%20Nanjo">🔍 <em>官網</em></a>'},
                 { time: '15:57', location: '糸滿魚市場', type: 'food', details: '糸滿魚市場位在沖繩的南端，近那霸機場，旁邊還有海鮮餐廳、伴手禮賣店和坐位區。', note: '價格平易近人，能直接現買現吃', food: '新鮮生食熟食' },
-                { time: '17:03', location: '沖繩 ASHIBINAA Outlet', type: 'shopping', details: '沖繩唯一的outlet，破80間耳熟能詳的國際品牌', note: '逛街購物吃美食！', food: '2F：豚骨一燈拉麵、やっぱりステーキ富士山熔岩牛排、樂風沖繩鄉土料理<br>1F：Bikkuri Donkey漢堡排' },
+                { time: '17:03', location: '沖繩 ASHIBINAA Outlet', type: 'shopping', details: '沖繩唯一的outlet，破80間耳熟能詳的國際品牌', note: '逛街購物吃美食！<br><br><a href="https://www.ashibinaa.com/">🔍 <em>官網</em></a>', food: '2F：豚骨一燈拉麵、やっぱりステーキ富士山熔岩牛排、樂風沖繩鄉土料理<br>1F：Bikkuri Donkey漢堡排' },
                 { time: '19:25', location: 'Kokusai-dori (国際通り)', type: 'attraction', details: '那霸市最熱鬧的街道，充滿了紀念品店、餐廳、和時尚小店。', note: '採購伴手禮', food: '暖暮拉麵 (國際通店)' },
                 { time: '20:48', location: 'Hotel Gran View Garden Okinawa', type: 'hotel', details: '返回飯店。', note: '休息迎接第三天！', food: '無' },
             ]},
             // Day 3
-            { day: 3, date: '06/21 (週六)', activities: [
+            { day: 3, date: '06/26 (週五)', activities: [
                 { time: '09:20', location: '波上宮', type: 'attraction', details: '沖繩八社之一，建於 1890 年，是慶典的舉辦地點，可自懸崖上觀賞風景。', note: '參拜祈福，欣賞崖上風景。', food: '無' },
                 { time: '10:58', location: '浜屋沖繩麵', type: 'food', details: '沖繩當地知名的麵店，麵條 Q 彈，湯頭濃郁。', note: '採用自動售票機點餐', food: '招牌沖繩麵' },
-                { time: '13:00', location: 'Orion啤酒廠', type: 'attraction', details: '提供 啤酒暢飲+導覽 行程', note: '[已預約] 18:00 導覽，記得準時報到', food: '免費暢飲生啤酒' },
-                { time: '14:11', location: '名護鳳梨園', type: 'attraction', details: '主題公園，陳述通過旅遊和試吃活動來發展農業與生態。園內設有咖啡廳和禮品店。', note: '品嘗各種鳳梨產品，搭乘鳳梨小火車遊園參觀', food: '鳳梨冰' },
+                { time: '13:00', location: 'Orion啤酒廠', type: 'attraction', details: '提供 啤酒暢飲+導覽 行程', note: '[已預約] 18:00 導覽，記得準時報到<br><br><a href="https://happypark.orionbeer.co.jp/?lng=en-US&_gl=1*pc5ba8*_gcl_au*MTAzNTUxMDMwNi4xNzY0MzE3ODUw">🔍 <em>官網</em></a>', food: '免費暢飲生啤酒' },
+                { time: '14:11', location: '名護鳳梨園', type: 'attraction', details: '主題公園，陳述通過旅遊和試吃活動來發展農業與生態。園內設有咖啡廳和禮品店。', note: '品嘗各種鳳梨產品，搭乘鳳梨小火車遊園參觀<br><br><a href="https://www.nagopine.com/">🔍 <em>官網</em></a>', food: '鳳梨冰' },
                 { time: '16:18', location: '永旺 名護店', type: 'shopping', details: '大型超市，適合當地購物和購買土特產。', note: '購買民宿要用的東西和食物'},
                 { time: '17:33', location: 'A&W Nago', type: 'food', details: '經典美式速食店，供應同名的漢堡、飲品、薯條、雞肉和薯條。', note: '品嘗 Root Beer 與漢堡', food: 'The Buddy Burger, Root Beer Float' },
                 { time: '18:53', location: 'Airbnb', type: 'hotel', details: '入住恩納村附近的 Airbnb。', note: 'Check-in', food: '無' },
             ]},
             // Day 4
-            { day: 4, date: '06/22 (週日)', activities: [
-                { time: '08:50', location: '沖繩美麗海水族館', type: 'attraction', details: '世界最大的水族館之一，有巨大的黑潮之海，能看到鯨鯊、珊瑚、魚、爬蟲類等動物。', note: '[兌換] 有搭配套票', food: '水族館內餐廳' },
+            { day: 4, date: '06/27 (週六)', activities: [
+                { time: '08:50', location: '沖繩美麗海水族館', type: 'attraction', details: '世界最大的水族館之一，有巨大的黑潮之海，能看到鯨鯊、珊瑚、魚、爬蟲類等動物。', note: '[兌換] 有搭配套票<br><br><a href="https://churaumi.okinawa/">🔍 <em>官網</em></a>', food: '水族館內餐廳' },
                 { time: '12:05', location: '披薩喫茶 花人逢', type: 'food', details: '位於山頂的傳統沖繩房屋。批薩(必吃)及沙拉。可欣賞海景。', note: '海景配披薩，人氣店排隊需有耐心～', food: '起司披薩、沙拉' },
                 { time: '14:42', location: '古宇利島', type: 'attraction', details: '特色有名的「蝦蝦飯」和古宇利塔', note: '[兌換] 有搭配套票', food: 'Kouri Shrimp (蝦蝦飯餐車)' },
                 { time: '17:40', location: '萬座毛', type: 'attraction', details: '狀似象鼻的岩海岬石。深受遊客和攝影師的喜愛。', note: '注意安全，不要靠近懸崖邊緣', food: '無' },
-                { time: '19:14', location: '永旺夢樂城 沖繩來客夢', type: 'shopping', details: '沖繩最大的購物中心之一，擁有國際品牌和各式美食。', note: '晚餐後逛街', food: '美食街、各國料理餐廳' },
+                { time: '19:14', location: '永旺夢樂城 沖繩來客夢', type: 'shopping', details: '沖繩最大的購物中心之一，擁有國際品牌和各式美食。', note: '晚餐後逛街<br><br><a href="https://tw.aeonmall.global/mall/okinawarycom">🔍 <em>官網</em></a>', food: '美食街、各國料理餐廳' },
                 { time: '22:03', location: 'Airbnb', type: 'hotel', details: '返回恩納村附近的 Airbnb。', note: '整理戰利品', food: '無' },
             ]},
             // Day 5
-            { day: 5, date: '06/23 (週一)', activities: [
-                { time: '09:35', location: '琉球村', type: 'attraction', details: '供遊客休憩的傳統琉球村，設有風俗表演，亦可體驗 DIY 手作坊。', note: '觀看傳統太鼓舞表演，體驗琉球文化', food: '無' },
+            { day: 5, date: '06/28 (週日)', activities: [
+                { time: '09:35', location: '琉球村', type: 'attraction', details: '供遊客休憩的傳統琉球村，設有風俗表演，亦可體驗 DIY 手作坊。', note: '觀看傳統太鼓舞表演，體驗琉球文化<br><br><a href="https://www.ryukyumura.co.jp/">🔍 <em>官網</em></a>', food: '無' },
                 { time: '12:30', location: '美國村', type: 'attraction', details: '美式風格的大型露天商場，有許多商店和餐廳進駐。', note: '逛街購物', food: 'Taco飯、Blue Seal 冰淇淋' },
-                { time: '14:23', location: 'SAN-A浦添西海岸 PARCO CITY', type: 'shopping', details: '新開幕的超大型購物中心，位於西海岸。', note: '最後的購物時間'},
+                { time: '14:23', location: 'SAN-A浦添西海岸 PARCO CITY', type: 'shopping', details: '新開幕的超大型購物中心，位於西海岸。', note: '最後的購物時間<br><br><a href="https://www.parcocity.jp.t.ahn.hp.transer.com/">🔍 <em>官網</em></a>'},
                 { time: '17:37', location: 'OTS臨空豐崎營業所 (那霸機場)', type: 'transport', details: '還車手續，結束自駕旅程。', note: '檢查油箱是否加滿', food: '無' },
-                { time: '19:00', location: 'Lacer Okinawa naha miebashi', type: 'hotel', details: '入住那霸市區飯店。', note: 'Check-in', food: '無' },
+                { time: '19:00', location: 'Lacer Okinawa naha miebashi', type: 'hotel', details: '入住那霸市區飯店。', note: 'Check-in<br><br><a href="https://hotels.creal.jp/brands/lacer/lacerokinawanahamiebashi">🔍 <em>官網</em></a>', food: '無' },
                 { time: '20:45', location: '島豚屋', type: 'food', details: '知名沖繩豬肉料理店，以阿古豬聞名。', note: '[已預約]', food: '阿古豬涮涮鍋' },
                 { time: '21:50', location: 'Lacer Okinawa naha miebashi', type: 'hotel', details: '返回那霸市區飯店/住宿。', note: 'Check-in。', food: '無' },
             ]},
             // Day 6
-            { day: 6, date: '06/24 (週二)', activities: [
-                { time: '07:03', location: '那霸機場 (OKA)', type: 'airport', details: '準備回台灣囉！', note: '提前3小時抵達機場<br>回台灣啦！', food: '機場早餐' },
-                { time: '10:15', location: '桃園國際機場 (TPE)', type: 'airport', details: '抵達桃園機場', note: '期待下次的家庭旅遊～' },
+            { day: 6, date: '06/29 (週一)', activities: [
+                { time: '08:50', location: '那霸機場 (OKA)', type: 'airport', details: '準備回台灣囉！', note: '提前3小時抵達機場<br>回台灣啦！', food: '機場早餐' },
+                { time: '12:25', location: '桃園國際機場 (TPE)', type: 'airport', details: '抵達桃園機場', note: '期待下次的家庭旅遊～' },
             ]},
         ];
 
