@@ -887,10 +887,10 @@
                                 <h3 class="text-xl font-bold text-gray-900">${ticket.name}</h3>
                             </div>
                         </div>
-                        <!-- QR Code/憑證連結 - 點擊連結到雲端圖片 -->
+                        <!-- QR Code連結，點擊連結到雲端圖片 -->
                         <a href="${ticket.imageLink}" target="_blank" 
                            class="w-16 h-16 p-2 bg-white/70 backdrop-blur-sm border-2 border-dashed border-${mainColor}-300 rounded-xl flex items-center justify-center shadow-inner hover:bg-white transition duration-200 cursor-pointer" 
-                           title="點擊查看完整憑證圖片（新視窗開啟）">
+                           title="點擊查看完整預約資訊（新視窗開啟）">
                             <span class="material-icons text-4xl text-${mainColor}-600">qr_code_2</span>
                         </a>
                     </div>
@@ -906,7 +906,7 @@
                             <p class="font-semibold text-gray-700">${ticket.location}</p>
                         </div>
                         <div class="col-span-2 mt-2 p-2 bg-red-50 rounded-lg">
-                            <p class="font-medium text-red-600">預約編號/憑證</p>
+                            <p class="font-medium text-red-600">預約編號</p>
                             <p class="font-mono text-base font-bold text-red-800 break-all">${ticket.confirmation}</p>
                         </div>
                     </div>
