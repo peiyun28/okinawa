@@ -97,13 +97,13 @@
 </head>
 <body class="p-4 sm:p-8">
 
-    <!-- 頁面標題 -->
+    <!-- 頁面大標題 -->
     <header class="text-center mb-8">
         <h1 class="text-4xl font-extrabold text-cyan-700">OKINAWA</h1>
         <p class="text-xl text-cyan-600 mt-2">- 家 庭 旅 遊 -</p>
     </header>
 
-    <!-- 行程頁面容器 -->
+    <!-- 行程頁面 -->
     <div id="itinerary-page" class="">
         <!-- 橫式天數切換 (Tab Navigation) -->
         <nav class="sticky top-0 bg-white shadow-lg rounded-xl p-2 mb-8 z-30 overflow-x-auto">
@@ -118,7 +118,7 @@
         </main>
     </div>
 
-    <!-- 記帳/預算頁面容器 -->
+    <!-- 記帳頁面 -->
     <div id="budget-page" class="hidden p-2">
 
         <!-- 總支出顯示區 -->
@@ -193,6 +193,19 @@
 
     </div>
 
+    <!-- 預約票卷頁面 -->
+    <div id="ticket-page" class="">
+        <h2 class="text-2xl font-extrabold mb-4 text-gray-800">🗒️ 預 約 資 訊</h2>
+        <div id="ticket-list" class="space-y-6">
+        <!-- 預約資訊的卡片顯示區 -->
+        </div>
+        <!-- 如果沒有預約資訊 -->
+        <div id="no-tickets-message" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mt-8" role="alert">
+            <p class="font-bold">目前沒有預約資料</p>
+            <p class="text-sm">您可以新增行程，並在備註中加入票卷資訊！</p>
+        </div>
+    </div>
+
     <!-- 景點資訊彈出視窗 -->
     <div id="detail-modal" class="fixed inset-0 hidden modal-backdrop items-center justify-center p-4 z-50 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="modal-content-wrapper">
@@ -214,13 +227,20 @@
     <!-- 主要功能切換 (浮動導航欄) -->
     <nav id="main-nav" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-2xl p-2 z-40 transition-all duration-300 hover:scale-105">
         <div class="flex space-x-2">
-            <button id="nav-itinerary" onclick="switchMainView('itinerary')" class="nav-button active-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 shadow-md hover:shadow-lg">
+            <!-- 行程按鈕 -->
+            <button id="nav-itinerary" onclick="switchMainView('itinerary')" class="nav-button active-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 shadow-md hover:shadow-lg" title="行程總覽">
                 <span class="material-icons text-xl">luggage</span>
                 <span class="hidden sm:inline">行程總覽</span>
             </button>
+            <!-- 記帳按鈕 -->
             <button id="nav-budget" onclick="switchMainView('budget')" class="nav-button inactive-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 hover:shadow-lg" title="記帳表">
                 <span class="material-icons text-xl">account_balance_wallet</span>
                 <span class="hidden sm:inline">記帳明細</span>
+            </button>
+            <!-- 預約按鈕 -->
+            <button id="nav-ticket" onclick="switchMainView('ticket')" class="nav-button inactive-nav-button px-6 py-3 text-lg font-bold rounded-full transition-all duration-300 flex items-center space-x-2 hover:shadow-lg" title="預約資訊">
+                <span class="material-icons text-xl">qr_code</span>
+                <span class="hidden sm:inline">預約資訊</span>
             </button>
         </div>
     </nav>
@@ -236,9 +256,85 @@
         let expenseData = []; // 實際支出資料
         let currentInputCurrency = 'TWD'; // 預設輸入貨幣為台幣
         
-        // --- 刪除模式狀態管理 ---
+        // 刪除模式狀態管理
         let isDeleting = false; // 是否處於刪除模式
         let selectedExpenseIds = new Set(); // 儲存被選取的支出 ID (本地 UUIDs)
+
+        // 票卷資料
+        const ticketData = [
+            {
+                id: 1,
+                name: '沖繩 Klook 套票',
+                type: '門票',
+                date: '2026/06/26',
+                time: '14:00',
+                location: '水族館、鳳梨園、古宇利塔',
+                confirmation: 'YVH922132',
+                color_class: 'border-blue-500 bg-blue-50', // 藍色主題
+                icon: '&#xe553;',
+                imageLink: 'https://drive.google.com/file/d/1nuZP6_9yUFoRjELPceKagiAxpBWTOZ6A/view?usp=sharing'
+            },
+            {
+                id: 2,
+                name: 'Hotel Gran View Garden Okinawa',
+                type: '住宿',
+                date: '2026/06/24',
+                time: '21:00',
+                location: '沖繩縣豐見城市豐崎3-82',
+                confirmation: '21315026776408',
+                color_class: 'border-teal-500 bg-teal-50', // 藍綠色主題
+                icon: '&#xe586;',
+                imageLink: 'https://drive.google.com/file/d/1nuZP6_9yUFoRjELPceKagiAxpBWTOZ6A/view?usp=sharing' 
+            },
+            {
+                id: 3,
+                name: '島豚屋 TONKATSU',
+                type: '飲食',
+                date: '2026/06/28',
+                time: '20:45',
+                location: '沖繩縣那霸市久茂地3-6-3',
+                confirmation: 'YNWYTX',
+                color_class: 'border-red-500 bg-red-50', // 紅色主題
+                icon: '&#xe556;',
+                imageLink: 'https://drive.google.com/file/d/1nuZP6_9yUFoRjELPceKagiAxpBWTOZ6A/view?usp=sharing' 
+            },
+            {
+                id: 4,
+                name: '沖繩 OTS 租車',
+                type: '交通',
+                date: '2026/06/24 -<br>2026/06/29',
+                time: '5 天',
+                location: '沖繩縣豐見城市豐崎3-37',
+                confirmation: 'OTS1315914',
+                color_class: 'border-yellow-500 bg-yellow-50', // 黃色主題
+                icon: '&#xe559;',
+                imageLink: 'https://drive.google.com/file/d/1nuZP6_9yUFoRjELPceKagiAxpBWTOZ6A/view?usp=sharing' 
+            },
+            {
+                id: 5,
+                name: 'Lacer 沖繩那霸泊碼頭',
+                type: '住宿',
+                date: '2026/06/28 -<br>2026/06/29',
+                time: '1 天',
+                location: '沖繩縣那霸市前島2-22-12',
+                confirmation: 'OTS1315914',
+                color_class: 'border-yellow-500 bg-yellow-50', // 黃色主題
+                icon: '&#xe559;',
+                imageLink: 'https://drive.google.com/file/d/1nuZP6_9yUFoRjELPceKagiAxpBWTOZ6A/view?usp=sharing' 
+            },
+            {
+                id: 6,
+                name: 'Orion 啤酒導覽',
+                type: '門票',
+                date: '2026/06/26',
+                time: '13:00',
+                location: '沖繩縣名護市東江２丁目２−１',
+                confirmation: 'EC3OD2RC',
+                color_class: 'border-blue-500 bg-blue-50', // 藍色主題
+                icon: '&#xe553;',
+                imageLink: 'https://drive.google.com/file/d/1nuZP6_9yUFoRjELPceKagiAxpBWTOZ6A/view?usp=sharing'
+            }
+        ];
 
         // 行程資料
         // 
@@ -296,8 +392,6 @@
             ]},
         ];
 
-        // --- 行程功能 (不變) ---
-
         /* 建立 Google Maps 導航連結 */
         function getMapUrl(locationName) {
             return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationName + ', 沖繩')}`;
@@ -320,8 +414,7 @@
                 const isOutboundDeparture = activity.location.includes('桃園') && activity.note.includes('登機'); 
                 // 回程登機：那霸機場 且 備註包含 '回台灣'
                 const isReturnDeparture = activity.location.includes('那霸') && activity.note.includes('回台灣');
-                // 根據使用者回饋，將桃園機場 (TPE) 抵達排除在機票樣式之外
-                
+                // 將桃園機場 (TPE) 抵達排除在機票樣式之外
                 if (isOutboundDeparture || isReturnDeparture) {
                     shouldShowTicket = true;
                 }
@@ -377,7 +470,7 @@
                     </div>
                 `;
             } else {
-                // 一般景點 - 標準資訊顯示 (適用於所有非飛行活動，包含機場純抵達/離開點)
+                // 一般景點資訊顯示
                 modalBody.innerHTML = `
                     <div class="space-y-4">
                         <div>
@@ -419,7 +512,7 @@
             }, 300);
         }
 
-        /* 根據選定天數做成行程卡片 */
+        /* 根據選定天數做成行程卡片樣式 */
         function renderItinerary(dayIndex) {
             const contentDiv = document.getElementById('itinerary-content');
             contentDiv.innerHTML = '';
@@ -477,9 +570,9 @@
             const tabsContainer = document.getElementById('day-tabs');
             itineraryData.forEach((day, index) => {
                 const button = document.createElement('button');
-                // --- 調整 Tab 顯示格式: '06/19 (週四)' -> '6/19(四)' ---
-                let formattedDate = day.date.replace(/0(\d)/g, '$1'); // 移除日期前導零 (06/19 (週四) -> 6/19 (週四))
-                formattedDate = formattedDate.replace(' (週', '(');      // 簡化週次格式 (6/19 (週四) -> 6/19(四))
+                // 調整 Tab 顯示格式: '06/19 (週四)' -> '6/19(四)'
+                let formattedDate = day.date.replace(/0(\d)/g, '$1');  // 移除日期前導零：06/19 (週四) -> 6/19 (週四)
+                formattedDate = formattedDate.replace(' (週', '(');  // 簡化週次格式：6/19 (週四) -> 6/19(四)
                 // 組合最終字串: 'D1 6/19(四)'
                 button.textContent = `D${day.day} ${formattedDate}`;
                 button.className = `day-tab px-4 py-2 text-sm sm:text-base font-semibold rounded-full transition-all duration-200 whitespace-nowrap`;
@@ -711,8 +804,6 @@
             }
         }
 
-        // 刪除 功能
-
         /* 切換刪除模式 */
         function toggleDeleteMode() {
             if (expenseData.length === 0 && !isDeleting) return;
@@ -776,43 +867,127 @@
             // renderExpenseList 會在 toggleDeleteMode 裡被呼叫
         }
 
+        // 預約資訊卡片顯示
         
+        /* 根據單一票卷資料產生 HTML 卡片 */
+        function renderTicketCard(ticket) {
+            // 從 color_class 提取顏色主色，用於 QR Code 圖示
+            const mainColor = ticket.color_class.split('-')[1]; // 例如 'blue'
+            const colorTone = ticket.color_class.split('-')[2]; // 例如 '500'
+            
+            return `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden ${ticket.color_class} border-l-8 transition duration-300 ease-in-out hover:shadow-xl">
+                    <!-- 票卷主標題區塊 -->
+                    <div class="p-5 flex justify-between items-start">
+                        <!-- Icon and Type -->
+                        <div class="flex items-center space-x-3">
+                            <span class="material-icons text-3xl text-gray-600">${ticket.icon}</span>
+                            <div>
+                                <p class="text-xs font-semibold uppercase text-gray-500">${ticket.type}</p>
+                                <h3 class="text-xl font-bold text-gray-900">${ticket.name}</h3>
+                            </div>
+                        </div>
+                        <!-- QR Code/憑證連結 - 點擊連結到雲端圖片 -->
+                        <a href="${ticket.imageLink}" target="_blank" 
+                           class="w-16 h-16 p-2 bg-white/70 backdrop-blur-sm border-2 border-dashed border-${mainColor}-300 rounded-xl flex items-center justify-center shadow-inner hover:bg-white transition duration-200 cursor-pointer" 
+                           title="點擊查看完整憑證圖片（新視窗開啟）">
+                            <span class="material-icons text-4xl text-${mainColor}-600">qr_code_2</span>
+                        </a>
+                    </div>
+                    
+                    <!-- 票卷詳細資訊區塊 -->
+                    <div class="bg-white p-5 pt-4 grid grid-cols-2 gap-y-3 text-sm border-t border-gray-100">
+                        <div>
+                            <p class="font-medium text-gray-500">日期/時間</p>
+                            <p class="font-semibold text-gray-700">${ticket.date} <span class="text-xs text-gray-500">@ ${ticket.time}</span></p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-500">地點</p>
+                            <p class="font-semibold text-gray-700">${ticket.location}</p>
+                        </div>
+                        <div class="col-span-2 mt-2 p-2 bg-red-50 rounded-lg">
+                            <p class="font-medium text-red-600">預約編號/憑證</p>
+                            <p class="font-mono text-base font-bold text-red-800 break-all">${ticket.confirmation}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
-        // 主畫面切換與初始化
+        /* 渲染所有票卷卡片 */
+        function renderTickets() {
+            const ticketListElement = document.getElementById('ticket-list');
+            const noTicketsMessage = document.getElementById('no-tickets-message');
+            
+            if (ticketData.length === 0) {
+                ticketListElement.innerHTML = '';
+                noTicketsMessage.classList.remove('hidden');
+            } else {
+                noTicketsMessage.classList.add('hidden');
+                // 根據日期排序 (模擬)
+                const sortedTickets = [...ticketData].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                ticketListElement.innerHTML = sortedTickets.map(renderTicketCard).join('');
+            }
+        }
 
-        /* 切換主畫面 (行程或記帳) */
+        // 主畫面切換與初始化頁面
+
+        /* 切換主畫面 (行程,記帳,票卷) */
         function switchMainView(view) {
             const itineraryPage = document.getElementById('itinerary-page');
             const budgetPage = document.getElementById('budget-page');
+            const ticketPage = document.getElementById('ticket-page');
+
             const navItinerary = document.getElementById('nav-itinerary');
             const navBudget = document.getElementById('nav-budget');
+            const navTicket = document.getElementById('nav-ticket');
+
 
             if (view === 'itinerary') {
                 itineraryPage.classList.remove('hidden');
                 budgetPage.classList.add('hidden');
+                ticketPage.classList.add('hidden'); // 
                 
                 navItinerary.classList.add('active-nav-button');
                 navItinerary.classList.remove('inactive-nav-button');
                 navBudget.classList.remove('active-nav-button');
                 navBudget.classList.add('inactive-nav-button');
+                navTicket.classList.remove('active-nav-button'); // 新增：確保 Ticket 按鈕被取消啟用
+                navTicket.classList.add('inactive-nav-button'); // 新增
             } else if (view === 'budget') {
                 itineraryPage.classList.add('hidden');
                 budgetPage.classList.remove('hidden');
+                ticketPage.classList.add('hidden'); // 
 
-                navBudget.classList.add('active-nav-button');
-                navBudget.classList.remove('inactive-nav-button');
                 navItinerary.classList.remove('active-nav-button');
                 navItinerary.classList.add('inactive-nav-button');
+                navBudget.classList.add('active-nav-button');
+                navBudget.classList.remove('inactive-nav-button');
+                navTicket.classList.remove('active-nav-button'); // 新增：確保 Ticket 按鈕被取消啟用
+                navTicket.classList.add('inactive-nav-button'); // 新增
 
                 // 進入記帳頁面時，確保資料已載入並渲染
                 isDeleting = false;
                 selectedExpenseIds.clear();
                 loadExpensesFromLocalStorage(); 
+            } else if (view === 'ticket') {
+                itineraryPage.classList.add('hidden');
+                budgetPage.classList.add('hidden');
+                ticketPage.classList.remove('hidden'); // 
+
+                navItinerary.classList.remove('active-nav-button');
+                navItinerary.classList.add('inactive-nav-button');
+                navBudget.classList.remove('active-nav-button');
+                navBudget.classList.add('inactive-nav-button');
+                navTicket.classList.add('active-nav-button');
+                navTicket.classList.remove('inactive-nav-button');
+                renderTickets();
             }
         }
 
 
-        /* 初始化 */
+        /* 頁面初始化 */
         document.addEventListener('DOMContentLoaded', () => {
             setupTabs();
             document.getElementById('add-expense-form').addEventListener('submit', addExpense);
@@ -826,7 +1001,9 @@
             });
 
             // 預設顯示行程頁面
-            switchMainView('itinerary');
+            //switchMainView('itinerary');
+            switchMainView('ticket');
+
         });
 
     </script>
